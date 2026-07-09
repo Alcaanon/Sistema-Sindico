@@ -1,36 +1,41 @@
-# 🏢 Sistema do Síndico
+# 🏢 Sistema do Síndico (Condomínio Hub)
 
 ![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-green)
 ![Angular](https://img.shields.io/badge/Angular-Standalone-DD0031?logo=angular)
 ![Ionic](https://img.shields.io/badge/Ionic-Mobile_First-3880FF?logo=ionic)
 ![NestJS](https://img.shields.io/badge/NestJS-Backend-E0234E?logo=nestjs)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql)
+![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?logo=swagger)
 
-O **Sistema do Síndico** é uma plataforma de governança e gestão condominial modularizada, responsiva (Mobile-First) e orientada à transparência. Desenvolvido como Projeto de Extensão (*Sistemas de Informação e Sociedade*), o sistema foi arquitetado para centralizar a administração de edifícios de pequeno porte (foco inicial em 4 unidades habitacionais), erradicando a gestão informal via WhatsApp e planilhas isoladas.
+O **Sistema do Síndico** é uma plataforma de governança e gestão condominial modularizada, responsiva e orientada à transparência. Desenvolvido como Projeto de Extensão *Sistemas de Informação e Sociedade*, o sistema foi arquitetado para centralizar a administração de edifícios de pequeno porte, erradicando a gestão informal via WhatsApp e planilhas isoladas.
 
-## 🎯 Principais Funcionalidades
+## 🎯 Domínios de Negócio e Funcionalidades
 
-A plataforma é dividida em dois painéis distintos, garantindo Controle de Acesso Baseado em Funções (RBAC):
+A API foi dividida em 5 domínios, operando sob um rigoroso **Controle de Acesso Baseado em Funções (RBAC)** e **Segurança de Nível de Linha (RLS)** para garantir o isolamento de dados entre os moradores:
 
-### 🛡️ Visão do Síndico (Painel de Gestão)
-* **Gestão de Fluxo de Caixa:** Registro de receitas (cotas condominiais) e despesas com upload de comprovantes.
-* **Automação de Rateio:** Cálculo exato de rateio (Soma das despesas + Fundo de Reserva ÷ 4 unidades).
-* **Consolidação Mensal:** Congelamento do mês vigente, cálculo de saldo atualizado e geração de relatórios e PDFs.
-* **Controle de Ocupação:** Gestão dinâmica do status das unidades (`Proprietário`, `Inquilino`, `Vazio`).
-* **Auditoria (GRC):** Registro imutável de todas as ações financeiras e administrativas realizadas no sistema.
+### 🔐 Segurança & Cadastros
+* **Autenticação Dupla:** Uso de Access Tokens e Refresh Tokens.
+* **Gestão de Unidades e Usuários:** Controle dinâmico de ocupação e vínculo direto de moradores às suas respectivas frações ideais.
 
-### 📱 Visão do Morador (Portal de Transparência)
-* **Status da Cota:** Acompanhamento mensal da cota condominial e envio de comprovante PIX.
-* **Prestação de Contas:** Acesso ao histórico detalhado do caixa consolidado e recibos digitalizados.
-* **Ouvidoria Oficial:** Abertura e acompanhamento de ocorrências (substituindo grupos de WhatsApp).
-* **Mural Digital:** Acesso permanente às regras de convivência, coleta de lixo, silêncio e garagem.
-* **Conformidade LGPD:** Controle de consentimento para tratamento de dados pessoais.
+### 💰 Gestão Financeira
+* **Fluxo de Caixa:** Lançamento de receitas e despesas.
+* **Automação de Rateio:** O sistema consolida as despesas do mês e divide automaticamente o valor pelas 4 unidades no fechamento mensal.
+* **Isolamento de Cobranças:** O morador tem acesso exclusivo ao seu próprio boleto/cota, podendo anexar o comprovante PIX direto pelo app.
+
+### ⚖️ Governança & Transparência (GRC)
+* **Ouvidoria:** Mural de transparência para abertura de chamados: vazamentos, barulho, etc. Visível para todos, mas tramitado apenas pelo Síndico.
+* **Regimento Interno:** Mural digital com as regras de convivência do condomínio sempre à mão.
+* **Auditoria:** Trilha de logs invisível e imutável registrando ações críticas no sistema.
+* **Avaliações (App):** Canal direto para os moradores reportarem bugs e sugestões de melhoria.
+
+### 🛠️ Operacional
+* **Manutenções Preventivas:** Cronograma inteligente para dedetização, limpeza de caixa d'água e recarga de extintores.
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
-O projeto adota uma arquitetura desacoplada, separando completamente a interface de usuário do servidor de banco de dados.
+O projeto adota uma arquitetura desacoplada, estruturada em **Domain-Driven Design (DDD)**.
 
 ### Frontend (Interface do Cliente)
 * **Framework:** [Ionic](https://ionicframework.com/) integrado com **Angular (Standalone Components)**.
@@ -38,10 +43,11 @@ O projeto adota uma arquitetura desacoplada, separando completamente a interface
 * **Comunicação:** `HttpClient` do Angular com interceptadores JWT.
 
 ### Backend (API e Regras de Negócio)
-* **Framework:** [NestJS](https://nestjs.com/) (Node.js com TypeScript e Domain-Driven Design).
-* **ORM:** [Prisma ORM](https://www.prisma.io/) (Tipagem estrita e segurança relacional).
-* **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/) (Modelagem robusta com integridade ACID).
-* **Autenticação:** JSON Web Token (JWT) + *Guards/Middlewares*.
+* **Framework:** [NestJS](https://nestjs.com/).
+* **ORM:** [Prisma ORM](https://www.prisma.io/).
+* **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/).
+* **Segurança:** `passport-jwt` + `bcrypt` + `class-validator`.
+* **Documentação:** Swagger UI interativo.
 
 ---
 
@@ -50,11 +56,11 @@ O projeto adota uma arquitetura desacoplada, separando completamente a interface
 ```text
 sistema-do-sindico/
 ├── docs/                       # Engenharia de Requisitos e Atas de Reunião
-├── design/                     # Wireframes das 14 telas e recursos visuais
-├── backend/                    # API Restful Modularizada (NestJS + Prisma)
+├── design/                     # Wireframes das telas e recursos visuais
+├── backend/                    # API Restful Modularizada NestJS + Prisma
 │   ├── src/                    # Controladores, Serviços, Módulos e Regras de Negócio
-│   └── prisma/                 # Schema do PostgreSQL e migrações
-└── frontend/                   # Aplicação Web/Mobile (Angular + Ionic)
+│   └── prisma/                 # Schema do PostgreSQL, Seed e migrações
+└── frontend/                   # Aplicação Web/Mobile Angular + Ionic
     └── src/                    # Páginas standalone, componentes de UI e serviços
 
 ```
@@ -65,66 +71,61 @@ sistema-do-sindico/
 
 ### Pré-requisitos
 
-Certifique-se de ter instalado em sua máquina:
+* [Node.js](https://nodejs.org/) (Versão 18+ LTS ou v24)
+* [PostgreSQL](https://www.postgresql.org/) (Local ou nuvem)
 
-* [Node.js](https://nodejs.org/) (Versão 18+ LTS)
-* [PostgreSQL](https://www.postgresql.org/) (Em execução local ou em nuvem)
-
-### 1. Clonando o Repositório
+### 1. Configurando o Backend (API)
 
 ```bash
-git clone https://github.com/Alcaanon/Sistema-Sindico.git
-cd sistema-do-sindico
-
-```
-
-### 2. Configurando o Backend (API)
-
-```bash
-cd backend
+# Clonar o repositório e entrar na pasta do backend
+git clone [https://github.com/SeuUsuario/Sistema-Sindico.git](https://github.com/SeuUsuario/Sistema-Sindico.git)
+cd sistema-do-sindico/backend
 
 # Instalar dependências
 npm install
 
 # Configurar Variáveis de Ambiente
-# Crie um arquivo .env na raiz da pasta backend e adicione sua URL do PostgreSQL:
+# Crie um arquivo .env na raiz da pasta backend:
 # DATABASE_URL="postgresql://usuario:senha@localhost:5432/sistema_do_sindico?schema=public"
+# JWT_ACCESS_SECRET="sua_chave_secreta"
+# JWT_REFRESH_SECRET="sua_chave_longa"
 
-# Rodar as migrações do banco de dados e gerar o Prisma Client
-npx prisma migrate dev --name init
+# Rodar migrações, gerar Prisma Client e injetar dados base (Síndico e Unidades)
+npx prisma db push
 npx prisma generate
+npx prisma db seed
 
-# Iniciar o servidor de desenvolvimento
+# Iniciar o servidor
 npm run start:dev
 
 ```
 
-> O backend estará rodando em `http://localhost:3000`
+> Acesse a documentação interativa e teste as rotas em: **`http://localhost:3000/api`**
 
-### 3. Configurando o Frontend (App)
+### 2. Configurando o Frontend (App)
 
-Em um novo terminal, volte para a raiz do projeto e acesse a pasta do frontend:
+Em um novo terminal, acesse a pasta do frontend:
 
 ```bash
-cd frontend
+cd sistema-do-sindico/frontend
 
 # Instalar dependências
 npm install
 
-# Iniciar o servidor de desenvolvimento do Ionic/Angular
+# Iniciar o servidor de desenvolvimento do Ionic
 ionic serve
 
 ```
 
-> A aplicação abrirá automaticamente no seu navegador, rodando em `http://localhost:8100`
+> A aplicação abrirá no navegador em: **`http://localhost:8100`**
 
 ---
 
-## 📄 Licença e Créditos
+## 📄 Autoria e Contexto
 
-Projeto arquitetado e desenvolvido por **Thalis Mateus Barcellos Macedo** como parte do projeto de extensão universitária *Sistemas de Informação e Sociedade*.
+Projeto arquitetado e desenvolvido por **Thalis Mateus Barcellos Macedo** como parte do projeto de extensão universitária *Sistemas de Informação e Sociedade* da Estácio.
 
-Este software foi projetado visando a entrega de valor tecnológico real para a comunidade, seguindo as melhores práticas de Análise e Desenvolvimetno de Software, governança de dados (GRC) e adequação às normativas de privacidade (LGPD).
+Este software foi projetado visando a entrega de valor tecnológico real para a comunidade, seguindo rigorosamente as melhores práticas de Engenharia de Software, Governança, Riscos e Conformidade (GRC) e adequação às normativas de privacidade (LGPD).
 
 ```
 
