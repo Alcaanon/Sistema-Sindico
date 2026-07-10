@@ -53,18 +53,37 @@ O projeto adota uma arquitetura desacoplada, estruturada em **Domain-Driven Desi
 
 ## 📂 Estrutura do Projeto
 
+O projeto adota uma arquitetura modular baseada em Domain-Driven Design, separando claramente as responsabilidades de infraestrutura, regras de negócio e interfaces visuais.
+
 ```text
 sistema-do-sindico/
-├── docs/                       # Engenharia de Requisitos e Atas de Reunião
-├── design/                     # Wireframes das telas e recursos visuais
-├── backend/                    # API Restful Modularizada NestJS + Prisma
-│   ├── src/                    # Controladores, Serviços, Módulos e Regras de Negócio
-│   └── prisma/                 # Schema do PostgreSQL, Seed e migrações
-└── frontend/                   # Aplicação Web/Mobile Angular + Ionic
-    └── src/                    # Páginas standalone, componentes de UI e serviços
-
+├── docs/                        # Engenharia de Requisitos e Atas de Reunião
+├── design/                      # Wireframes das telas e recursos visuais
+│
+├── backend/                     # API Restful Modularizada (NestJS + Prisma)
+│   ├── prisma/                  # Camada de Persistência, Schema do PostgreSQL e Migrations
+│   └── src/
+│       ├── auth/                # Autenticação, Gestão de Sessões (Session Cron) e JWT
+│       ├── core/                # Segurança Global, Guards (RBAC), Interceptors e Filtros
+│       └── modules/             # Domínios da Aplicação (Business Logic)
+│           ├── cadastros/       # Gestão de unidades habitacionais e usuários
+│           ├── financeiro/      # Cobranças, despesas, fechamentos e receitas (GRC Financeiro)
+│           ├── governanca/      # Auditoria, avaliações, ocorrências e regras
+│           └── operacional/     # Manutenções e operações do dia a dia
+│
+└── frontend/                    # Aplicação Web/Mobile (Angular + Ionic)
+    └── src/app/
+        ├── core/                # Motor da aplicação (Guards de rotas, Interceptors, API Service)
+        ├── shared/              # UI genérica e reutilizável (Componentes, Headers, Alertas)
+        ├── features/            # As 14 Telas divididas por Domínio
+        │   ├── auth/            # Telas 01 e 02: Login e Adequação LGPD
+        │   ├── dashboard/       # Telas 03 e 10: Dashboards de Síndico e Morador
+        │   ├── financeiro/      # Telas 04, 05, 06 e 12: Lançamentos, Rateio e Balanço
+        │   ├── admin/           # Telas 07 e 09: Gestão de Unidades e Auditoria
+        │   └── comunicacao/     # Telas 08, 11, 13 e 14: Ouvidoria, Mural e Feedbacks do App
+        ├── app.component.* # Componente raiz da aplicação
+        └── app.routes.ts        # Orquestração de Rotas e Lazy Loading das features
 ```
-
 ---
 
 ## 🚀 Instalação e Execução Local
