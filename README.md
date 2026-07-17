@@ -1,151 +1,352 @@
 # 🏢 Sistema do Síndico (Condomínio Hub)
 
-![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-green)
-![Angular](https://img.shields.io/badge/Angular-Standalone-DD0031?logo=angular)
-![Ionic](https://img.shields.io/badge/Ionic-Mobile_First-3880FF?logo=ionic)
-![NestJS](https://img.shields.io/badge/NestJS-Backend-E0234E?logo=nestjs)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql)
-![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?logo=swagger)
+Sistema de governança e gestão condominial desenvolvido para centralizar a administração de condomínios de pequeno porte, substituindo processos informais realizados por aplicativos de mensagens e planilhas.
 
-O **Sistema do Síndico** é uma plataforma de governança e gestão condominial modularizada, responsiva e orientada à transparência. Desenvolvido como Projeto de Extensão *Sistemas de Informação e Sociedade*, o sistema foi arquitetado para centralizar a administração de edifícios de pequeno porte, erradicando a gestão informal via WhatsApp e planilhas isoladas.
-
-## 🎯 Domínios de Negócio e Funcionalidades
-
-A API foi dividida em 5 domínios, operando sob um rigoroso **Controle de Acesso Baseado em Funções (RBAC)** e **Segurança de Nível de Linha (RLS)** para garantir o isolamento de dados entre os moradores:
-
-### 🔐 Segurança & Cadastros
-* **Autenticação Dupla:** Uso de Access Tokens e Refresh Tokens.
-* **Gestão de Unidades e Usuários:** Controle dinâmico de ocupação e vínculo direto de moradores às suas respectivas frações ideais.
-
-### 💰 Gestão Financeira
-* **Fluxo de Caixa:** Lançamento de receitas e despesas.
-* **Automação de Rateio:** O sistema consolida as despesas do mês e divide automaticamente o valor pelas 4 unidades no fechamento mensal.
-* **Isolamento de Cobranças:** O morador tem acesso exclusivo ao seu próprio boleto/cota, podendo anexar o comprovante PIX direto pelo app.
-
-### ⚖️ Governança & Transparência (GRC)
-* **Ouvidoria:** Mural de transparência para abertura de chamados: vazamentos, barulho, etc. Visível para todos, mas tramitado apenas pelo Síndico.
-* **Regimento Interno:** Mural digital com as regras de convivência do condomínio sempre à mão.
-* **Auditoria:** Trilha de logs invisível e imutável registrando ações críticas no sistema.
-* **Avaliações (App):** Canal direto para os moradores reportarem bugs e sugestões de melhoria.
-
-### 🛠️ Operacional
-* **Manutenções Preventivas:** Cronograma inteligente para dedetização, limpeza de caixa d'água e recarga de extintores.
+O projeto foi desenvolvido como parte do Projeto de Extensão **Sistemas de Informação e Sociedade (Estácio)**, aplicando boas práticas de Engenharia de Software, arquitetura em camadas, segurança da informação e governança de dados.
 
 ---
 
-## 🛠️ Stack Tecnológica
+# 📖 Visão Geral
 
-O projeto adota uma arquitetura desacoplada, estruturada em **Domain-Driven Design (DDD)**.
+A plataforma foi construída para atender às principais necessidades administrativas de um condomínio, organizando as funcionalidades em domínios independentes e permitindo evolução contínua da aplicação.
 
-### Frontend (Interface do Cliente)
-* **Framework:** [Ionic](https://ionicframework.com/) integrado com **Angular (Standalone Components)**.
-* **Estilização:** [Tailwind CSS](https://tailwindcss.com/) (Utility-first e Mobile-first).
-* **Comunicação:** `HttpClient` do Angular com interceptadores JWT.
+Os principais objetivos são:
 
-### Backend (API e Regras de Negócio)
-* **Framework:** [NestJS](https://nestjs.com/).
-* **ORM:** [Prisma ORM](https://www.prisma.io/).
-* **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/).
-* **Segurança:** `passport-jwt` + `bcrypt` + `class-validator`.
-* **Documentação:** Swagger UI interativo.
+- Centralizar a gestão condominial;
+- Garantir transparência nas informações;
+- Automatizar processos administrativos;
+- Proteger os dados dos moradores;
+- Facilitar a manutenção e evolução do sistema.
 
 ---
 
-## 📂 Estrutura do Projeto
+# 🎯 Domínios da Aplicação
 
-O projeto adota uma arquitetura modular baseada em Domain-Driven Design, separando claramente as responsabilidades de infraestrutura, regras de negócio e interfaces visuais.
+## 🔐 Segurança, Cadastros e Governança de Acesso
 
-```text
+Responsável pela identidade dos usuários e proteção dos dados.
+
+Funcionalidades:
+
+- Autenticação com **Access Token** e **Refresh Token**
+- Rotação automática de Refresh Tokens
+- Controle de acesso baseado em funções (**RBAC**)
+- Isolamento de dados utilizando **Row Level Security (RLS)**
+- Gestão de usuários
+- Gestão de unidades habitacionais
+- Associação entre moradores e respectivas unidades
+
+---
+
+## 💰 Gestão Financeira
+
+Responsável pelo controle financeiro do condomínio.
+
+Funcionalidades:
+
+- Controle de receitas
+- Controle de despesas
+- Fluxo de caixa
+- Fechamento mensal
+- Rateio automático das despesas entre as unidades
+- Processamento utilizando transações atômicas
+- Visualização individual das cobranças pelo morador
+
+---
+
+## ⚖️ Governança (GRC)
+
+Módulo voltado para transparência e comunicação.
+
+Funcionalidades:
+
+- Ouvidoria
+- Registro de ocorrências
+- Regimento interno digital
+- Canal para sugestões
+- Canal para reporte de bugs
+- Histórico das ações administrativas
+
+---
+
+## 🛠 Operacional
+
+Gerencia atividades preventivas do condomínio.
+
+Funcionalidades:
+
+- Cronograma de manutenções
+- Controle de dedetização
+- Limpeza de caixa d'água
+- Recarga de extintores
+- Alertas automáticos
+
+---
+
+# 🛡 Segurança e Observabilidade
+
+O backend foi desenvolvido seguindo práticas voltadas para Governança, Riscos e Conformidade (GRC), priorizando rastreabilidade, auditoria e controle de acesso.
+
+## Autenticação
+
+- JWT
+- Access Token
+- Refresh Token
+- Rotação automática de Refresh Tokens
+
+## Controle de acesso
+
+- RBAC (Role Based Access Control)
+- Row Level Security (RLS)
+
+## Auditoria
+
+Todas as ações críticas podem ser registradas através de logs estruturados, permitindo rastreabilidade das operações realizadas pelos usuários.
+
+Categorias de log:
+
+- `[AUDITORIA]`
+- `[SEGURANÇA]`
+- `[DEBUG]`
+- `[ERRO]`
+
+## Persistência de Logs
+
+Implementação utilizando **Winston** com criação automática do diretório de logs.
+
+Arquivos gerados:
+
+```
+logs/
+├── combined.log
+└── error.log
+```
+
+Essa abordagem facilita:
+
+- auditoria;
+- diagnóstico de falhas;
+- monitoramento da aplicação;
+- suporte à conformidade com a LGPD.
+
+---
+
+# 🏗 Arquitetura
+
+O backend segue princípios inspirados em **Domain-Driven Design (DDD)**, separando responsabilidades por domínio de negócio.
+
+```
 sistema-do-sindico/
-├── docs/                        # Engenharia de Requisitos e Atas de Reunião
-├── design/                      # Wireframes das telas e recursos visuais
+├── docs/                       # Engenharia de Requisitos e Atas de Reunião
+├── design/                     # Wireframes das telas e recursos visuais
 │
-├── backend/                     # API Restful Modularizada (NestJS + Prisma)
-│   ├── prisma/                  # Camada de Persistência, Schema do PostgreSQL e Migrations
+├── logs/                       # Logs estruturados de auditoria (Persistência)
+│   ├── combined.log            # Todos os registros de eventos do sistema
+│   └── error.log               # Registro exclusivo de falhas e exceções (Stack Traces)
+│
+├── backend/                    # API Restful Modularizada (NestJS + Prisma)
+│   ├── prisma/                 # Camada de Persistência, Schema do PostgreSQL e Migrations
 │   └── src/
-│       ├── auth/                # Autenticação, Gestão de Sessões (Session Cron) e JWT
-│       ├── core/                # Segurança Global, Guards (RBAC), Interceptors e Filtros
-│       └── modules/             # Domínios da Aplicação (Business Logic)
-│           ├── cadastros/       # Gestão de unidades habitacionais e usuários
-│           ├── financeiro/      # Cobranças, despesas, fechamentos e receitas (GRC Financeiro)
-│           ├── governanca/      # Auditoria, avaliações, ocorrências e regras
-│           └── operacional/     # Manutenções e operações do dia a dia
+│       ├── auth/               # Autenticação, Gestão de Sessões (Refresh Token) e JWT
+│       ├── core/               # Segurança Global, Guards (RBAC), Interceptors e Filtros
+│       └── modules/            # Domínios da Aplicação (Business Logic)
+│           ├── cadastros/      # Gestão de unidades habitacionais e usuários
+│           ├── financeiro/     # Cobranças, despesas, fechamentos e receitas
+│           ├── governanca/     # Auditoria, avaliações, ocorrências e regras
+│           └── operacional/    # Manutenções preventivas e ordens de serviço
 │
-└── frontend/                    # Aplicação Web/Mobile (Angular + Ionic)
+└── frontend/                   # Aplicação Web/Mobile (Angular + Ionic)
     └── src/app/
-        ├── core/                # Motor da aplicação (Guards de rotas, Interceptors, API Service)
-        ├── shared/              # UI genérica e reutilizável (Componentes, Headers, Alertas)
-        ├── features/            # As 14 Telas divididas por Domínio
-        │   ├── auth/            # Telas 01 e 02: Login e Adequação LGPD
-        │   ├── dashboard/       # Telas 03 e 10: Dashboards de Síndico e Morador
-        │   ├── financeiro/      # Telas 04, 05, 06 e 12: Lançamentos, Rateio e Balanço
-        │   ├── admin/           # Telas 07 e 09: Gestão de Unidades e Auditoria
-        │   └── comunicacao/     # Telas 08, 11, 13 e 14: Ouvidoria, Mural e Feedbacks do App
-        ├── app.component.* # Componente raiz da aplicação
-        └── app.routes.ts        # Orquestração de Rotas e Lazy Loading das features
+        ├── core/               # Motor da aplicação (Guards de rotas, Interceptors, API Service)
+        ├── shared/             # UI genérica e reutilizável (Componentes, Headers, Alertas)
+        ├── features/           # As 14 Telas divididas por Domínio
+        │   ├── admin/          # Gestão de Unidades e Auditoria
+        │   ├── auth/           # Telas 01 e 02: Login e Adequação LGPD
+        │   ├── comunicacao/    # Ouvidoria, Mural e Feedbacks do App
+        │   ├── dashboard/      # Telas 03 e 10: Dashboards de Síndico e Morador
+        │   └── financeiro/     # Telas 04, 05, 06 e 12: Lançamentos, Rateio e Balanço
+        ├── app.component.*     # Componente raiz da aplicação
+        └── app.routes.ts       # Orquestração de Rotas e Lazy Loading das features
 ```
+
+Essa organização facilita:
+
+- manutenção;
+- escalabilidade;
+- testes;
+- desacoplamento entre módulos.
+
 ---
 
-## 🚀 Instalação e Execução Local
+# 🛠 Stack Tecnológica
 
-### Pré-requisitos
+| Camada | Tecnologias |
+|----------|-------------|
+| Frontend | Ionic + Angular (Standalone Components) |
+| Estilização | Tailwind CSS |
+| Backend | NestJS |
+| ORM | Prisma ORM |
+| Banco de Dados | PostgreSQL |
+| Segurança | Passport-JWT, Bcrypt, Class Validator |
+| Observabilidade | Winston |
+| Documentação | Swagger (OpenAPI) |
 
-* [Node.js](https://nodejs.org/) (Versão 18+ LTS ou v24)
-* [PostgreSQL](https://www.postgresql.org/) (Local ou nuvem)
+---
 
-### 1. Configurando o Backend (API)
+# 🚀 Instalação
+
+## Pré-requisitos
+
+- Node.js 18+
+- PostgreSQL
+- npm
+
+---
+
+## Backend
+
+Entre na pasta:
 
 ```bash
-# Clonar o repositório e entrar na pasta do backend
-git clone [https://github.com/SeuUsuario/Sistema-Sindico.git](https://github.com/SeuUsuario/Sistema-Sindico.git)
-cd sistema-do-sindico/backend
+cd backend
+```
 
-# Instalar dependências
+Instale as dependências:
+
+```bash
 npm install
+```
 
-# Configurar Variáveis de Ambiente
-# Crie um arquivo .env na raiz da pasta backend:
-# DATABASE_URL="postgresql://usuario:senha@localhost:5432/sistema_do_sindico?schema=public"
-# JWT_ACCESS_SECRET="sua_chave_secreta"
-# JWT_REFRESH_SECRET="sua_chave_longa"
+Configure o arquivo:
 
-# Rodar migrações, gerar Prisma Client e injetar dados base (Síndico e Unidades)
+```
+.env
+```
+
+Execute as migrações:
+
+```bash
 npx prisma db push
-npx prisma generate
-npx prisma db seed
-
-# Iniciar o servidor
-npm run start:dev
-
 ```
 
-> Acesse a documentação interativa e teste as rotas em: **`http://localhost:3000/api`**
-
-### 2. Configurando o Frontend (App)
-
-Em um novo terminal, acesse a pasta do frontend:
+Gere o client do Prisma:
 
 ```bash
-cd sistema-do-sindico/frontend
-
-# Instalar dependências
-npm install
-
-# Iniciar o servidor de desenvolvimento do Ionic
-ionic serve
-
+npx prisma generate
 ```
 
-> A aplicação abrirá no navegador em: **`http://localhost:8100`**
+Inicie a aplicação:
+
+```bash
+npm run start:dev
+```
+
+Swagger:
+
+```
+http://localhost:3000/api
+```
+
+Logs:
+
+```
+backend/logs/
+```
 
 ---
 
-## 📄 Autoria e Contexto
+## Frontend
 
-Projeto arquitetado e desenvolvido por **Thalis Mateus Barcellos Macedo** como parte do projeto de extensão universitária *Sistemas de Informação e Sociedade* da Estácio.
+Entre na pasta:
 
-Este software foi projetado visando a entrega de valor tecnológico real para a comunidade, seguindo rigorosamente as melhores práticas de Engenharia de Software, Governança, Riscos e Conformidade (GRC) e adequação às normativas de privacidade (LGPD).
-
+```bash
+cd frontend
 ```
 
+Instale as dependências:
+
+```bash
+npm install
 ```
+
+Execute:
+
+```bash
+ionic serve
+```
+
+Aplicação:
+
+```
+http://localhost:8100
+```
+
+---
+
+# 📚 Boas Práticas Adotadas
+
+O projeto utiliza práticas modernas de desenvolvimento para facilitar manutenção, evolução e segurança.
+
+## Arquitetura
+
+- Separação por domínio
+- Arquitetura modular
+- Princípios inspirados em DDD
+- Baixo acoplamento
+- Alta coesão
+
+## Backend
+
+- DTOs para validação
+- Validação utilizando Class Validator
+- Guards para autorização
+- Interceptors
+- Serviços desacoplados
+- Prisma ORM
+- Transações atômicas
+- Tratamento centralizado de exceções
+
+## Segurança
+
+- JWT
+- Refresh Token
+- RBAC
+- RLS
+- Hash de senhas com Bcrypt
+- Validação de entrada
+- Auditoria das operações
+
+## Observabilidade
+
+- Logs estruturados
+- Separação por níveis
+- Persistência em arquivos
+- Rastreabilidade de eventos críticos
+
+---
+
+# 📄 Documentação da API
+
+A API possui documentação interativa gerada automaticamente pelo Swagger.
+
+Após iniciar o backend:
+
+```
+http://localhost:3000/api
+```
+
+---
+
+# 👨‍💻 Autor
+
+**Thalis Mateus Barcellos Macedo**
+
+Projeto desenvolvido como parte do Projeto de Extensão **Sistemas de Informação e Sociedade**, da Estácio, aplicando conceitos de:
+
+- Engenharia de Software;
+- Arquitetura de Software;
+- Segurança da Informação;
+- Governança de TI;
+- Boas práticas de desenvolvimento;
+- LGPD;
+- Desenvolvimento Full Stack.
