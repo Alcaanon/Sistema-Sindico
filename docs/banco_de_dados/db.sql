@@ -1,0 +1,191 @@
+// ----------------------------------------------------------------------------
+// ENUMS
+// ----------------------------------------------------------------------------
+
+enum StatusOcupacao {
+  PROPRIETARIO
+  INQUILINO
+  VAZIO
+}
+
+enum PerfilUsuario {
+  SINDICO
+  MORADOR
+}
+
+enum TipoDespesa {
+  AGUA
+  LUZ
+  TERCEIRO
+  EXTRA
+}
+
+enum TipoReceita {
+  COTA_CONDOMINIAL
+  FUNDO_RESERVA
+  OUTROS
+}
+
+enum StatusFechamento {
+  ABERTO
+  CONSOLIDADO
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+}
+
+enum StatusOcorrencia {
+  ABERTO
+  EM_ANALISE
+  RESOLVIDO
+}
+
+// ----------------------------------------------------------------------------
+// MODELS
+// ----------------------------------------------------------------------------
+
+model Unidade {
+  id             Int            @id @default(autoincrement())
+  numero         String         @db.VarChar(10)
+  statusOcupacao StatusOcupacao @map("status_ocupacao")
+  vagaGaragem    String?        @map("vaga_garagem") @db.VarChar(50)
+
+  // Relacionamentos
+  usuarios  Usuario[]
+  receitas  Receita[]
+  cobrancas CobrancaUnidade[]
+
+  @@map("unidades")
+}
+
+model Usuario {
+  id            Int           @id @default(autoincrement())
+  unidadeId     Int           @map("unidade_id")
+  nomeCompleto  String        @map("nome_completo") @db.VarChar(255)
+  cpf           String        @unique @db.VarChar(14)
+  whatsapp      String?       @db.VarChar(20)
+  email         String?       @db.VarChar(255)
+  perfil        PerfilUsuario
+  aceiteLgpd    Boolean       @default(false) @map("aceite_lgpd")
+  dataAceite    DateTime?     @map("data_aceite_lgpd")
+  senhaHash     String        @map("senha_hash") @db.VarChar(255)
+
+  // Relacionamentos
+  unidade     Unidade        @relation(fields: [unidadeId], references: [id])
+  despesas    Despesa[]
+  ocorrencias Ocorrencia[]
+  logs        LogAuditoria[]
+
+  @@map("usuarios")
+}
+
+model Despesa {
+  id              Int         @id @default(autoincrement())
+  cadastradoPorId Int         @map("cadastrado_por")
+  mesReferencia   String      @map("mes_referencia") @db.VarChar(7) // Ex: "07/2026"
+  descricao       String      @db.VarChar(255)
+  valor           Decimal     @db.Decimal(10, 2)
+  tipoDespesa     TipoDespesa @map("tipo_despesa")
+  pagoPeloSindico Boolean     @default(false) @map("pago_pelo_sindico")
+  urlComprovante  String?     @map("url_comprovante") @db.Text
+
+  // Relacionamentos
+  cadastradoPor Usuario @relation(fields: [cadastradoPorId], references: [id])
+
+  @@map("despesas")
+}
+
+model Receita {
+  id              Int         @id @default(autoincrement())
+  unidadeId       Int         @map("unidade_id")
+  mesReferencia   String      @map("mes_referencia") @db.VarChar(7)
+  descricao       String      @db.VarChar(255)
+  valorRecebido   Decimal     @map("valor_recebido") @db.Decimal(10, 2)
+  dataRecebimento DateTime    @map("data_recebimento") @db.Date
+  tipoReceita     TipoReceita @map("tipo_receita")
+
+  // Relacionamentos
+  unidade Unidade @relation(fields: [unidadeId], references: [id])
+
+  @@map("receitas")
+}
+
+model FechamentoMensal {
+  id                          Int              @id @default(autoincrement())
+  mesAnoCompetencia           String           @unique @map("mes_ano_competencia") @db.VarChar(7)
+  saldoAnteriorCaixa          Decimal          @map("saldo_anterior_caixa") @db.Decimal(10, 2)
+  totalReceitas               Decimal          @map("total_receitas") @db.Decimal(10, 2)
+  totalDespesas               Decimal          @map("total_despesas") @db.Decimal(10, 2)
+  saldoAtualizadoCaixa        Decimal          @map("saldo_atualizado_caixa") @db.Decimal(10, 2)
+  despesasMesAnterior         Decimal          @map("despesas_mes_anterior") @db.Decimal(10, 2)
+  comparativoPercentualCustos Decimal?         @map("comparativo_percentual_custos") @db.Decimal(5, 2)
+  fundoReservaAdicionado      Decimal          @map("fundo_reserva_adicionado") @db.Decimal(10, 2)
+  valorCotaPorUnidade         Decimal          @map("valor_cota_por_unidade") @db.Decimal(10, 2)
+  dataVencimento              DateTime         @map("data_vencimento") @db.Date
+  statusFechamento            StatusFechamento @default(ABERTO) @map("status_fechamento")
+
+  // Relacionamentos
+  cobrancas CobrancaUnidade[]
+
+  @@map("fechamentos_mensais")
+}
+
+model CobrancaUnidade {
+  id                Int             @id @default(autoincrement())
+  fechamentoId      Int             @map("fechamento_id")
+  unidadeId         Int             @map("unidade_id")
+  statusPagamento   StatusPagamento @default(PENDENTE) @map("status_pagamento")
+  dataPagamento     DateTime?       @map("data_pagamento") @db.Date
+  urlComprovantePix String?         @map("url_comprovante_pix") @db.Text
+
+  // Relacionamentos
+  fechamento FechamentoMensal @relation(fields: [fechamentoId], references: [id])
+  unidade    Unidade          @relation(fields: [unidadeId], references: [id])
+
+  @@map("cobrancas_unidades")
+}
+
+model Ocorrencia {
+  id               Int              @id @default(autoincrement())
+  usuarioId        Int              @map("usuario_id")
+  assunto          String           @db.Text
+  status           StatusOcorrencia @default(ABERTO)
+  dataHoraAbertura DateTime         @default(now()) @map("data_hora_abertura") @db.Timestamp(6)
+
+  // Relacionamentos
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("ocorrencias")
+}
+
+model ManutencaoPreventiva {
+  id                   Int       @id @default(autoincrement())
+  descricaoServico     String    @map("descricao_servico") @db.VarChar(255)
+  periodicidadeMeses   Int       @map("periodicidade_meses")
+  dataUltimaExecucao   DateTime? @map("data_ultima_execucao") @db.Date
+  dataProximoAlerta    DateTime? @map("data_proximo_alerta") @db.Date
+
+  @@map("manutencoes_preventivas")
+}
+
+model MuralRegras {
+  id                  Int    @id @default(autoincrement())
+  tituloRegra         String @map("titulo_regra") @db.VarChar(150)
+  descricaoDetalhada  String @map("descricao_detalhada") @db.Text
+
+  @@map("mural_regras")
+}
+
+model LogAuditoria {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  acao      String   @db.VarChar(255)
+  dataHora  DateTime @default(now()) @map("data_hora") @db.Timestamp(6)
+
+  // Relacionamentos
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("logs_auditoria")
+}
