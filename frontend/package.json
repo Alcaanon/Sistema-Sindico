@@ -1,10 +1,10 @@
 {
-  "name": "frontend",
+  "name": "Sistema do Síndico",
   "version": "0.0.1",
-  "author": "Ionic Framework",
+  "author": "Thalis Mateus Barcellos Macedo",
   "homepage": "https://ionicframework.com/",
   "private": true,
-  "description": "An Ionic project",
+  "description": "Projeto de extensão - Faculdade Estácio",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
