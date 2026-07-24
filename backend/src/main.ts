@@ -59,7 +59,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000, '0.0.0.0');
   
   loggerInstance.log(`Aplicação rodando em: 3000`);
   loggerInstance.log(`Documentação Swagger disponível em: 3000/api`);
