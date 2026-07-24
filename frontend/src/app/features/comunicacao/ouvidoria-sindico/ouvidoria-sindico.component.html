@@ -1,0 +1,97 @@
+<ion-content class="bg-gray-50">
+  <div class="w-full max-w-md mx-auto bg-gray-50 min-h-screen relative pb-10">
+    
+    <header class="bg-white px-4 py-4 flex items-center shadow-sm sticky top-0 z-10 border-b border-gray-100">
+      <button (click)="voltar()" class="text-gray-500 hover:text-gray-900 focus:outline-none p-1 -ml-1 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <div class="ml-2">
+        <h1 class="text-lg font-bold text-gray-800 leading-tight">Ouvidoria</h1>
+        <p class="text-xs text-gray-500 font-medium">Gestão de Chamados</p>
+      </div>
+    </header>
+
+    <main class="p-5 space-y-4">
+      
+      <div *ngIf="isLoading" class="text-center py-10">
+        <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+
+      <div *ngIf="!isLoading && listaChamados.length === 0" class="text-center py-10 text-gray-500">
+        Nenhum chamado registrado na ouvidoria.
+      </div>
+
+      <div *ngFor="let chamado of listaChamados" 
+           [ngClass]="{
+             'border-red-500': chamado.status === 'ABERTO',
+             'border-amber-400': chamado.status === 'EM_ANALISE',
+             'border-emerald-500 opacity-75': chamado.status === 'RESOLVIDO'
+           }"
+           class="bg-white rounded-xl shadow-sm border-l-4 overflow-hidden transition-all duration-300">
+        
+        <div class="p-4" 
+             [ngClass]="{'border-b border-gray-100': chamadoExpandidoId === chamado.id, 'cursor-pointer hover:shadow-md': chamado.status !== 'RESOLVIDO'}"
+             (click)="alternarChamado(chamado)">
+          
+          <div class="flex justify-between items-start mb-2">
+            <span *ngIf="chamado.status === 'ABERTO'" class="inline-block px-2.5 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-md">🔴 Aberto</span>
+            <span *ngIf="chamado.status === 'EM_ANALISE'" class="inline-block px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-md">🟡 Em Análise</span>
+            <span *ngIf="chamado.status === 'RESOLVIDO'" class="inline-block px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-md">🟢 Resolvido</span>
+            
+            <span class="text-xs text-gray-400 font-medium">{{ chamado.createdAt | date:'dd MMM, HH:mm' }}</span>
+          </div>
+          
+          <h3 [ngClass]="{'line-through decoration-gray-400 text-gray-600': chamado.status === 'RESOLVIDO', 'text-gray-900': chamado.status !== 'RESOLVIDO'}" 
+              class="text-base font-bold leading-tight">{{ chamado.assunto }}</h3>
+          
+          <p class="text-xs text-gray-500 mt-1">
+            Enviado por: <strong class="text-gray-700">{{ chamado.nomeUsuario }}</strong>
+          </p>
+
+          <div *ngIf="chamadoExpandidoId !== chamado.id && chamado.status !== 'RESOLVIDO'" 
+               class="mt-3 flex items-center justify-center border-t border-gray-100 pt-2 text-xs font-medium text-blue-600">
+            Ver detalhes e responder 
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+
+        <div *ngIf="chamadoExpandidoId === chamado.id" class="animate-fade-in">
+          
+          <div class="p-4 bg-gray-50 border-b border-gray-100">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Relato do Morador:</p>
+            <p class="text-sm text-gray-700 leading-relaxed italic">"{{ chamado.descricao }}"</p>
+          </div>
+
+          <div class="p-4 space-y-4" [formGroup]="formResposta">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Alterar Status do Chamado</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label [ngClass]="formResposta.get('novoStatus')?.value === 'EM_ANALISE' ? 'ring-2 ring-amber-500 bg-amber-100' : 'bg-amber-50 hover:bg-amber-100'"
+                       class="flex items-center justify-center px-3 py-2 border border-amber-200 text-amber-800 rounded-lg cursor-pointer transition-all">
+                  <input type="radio" formControlName="novoStatus" value="EM_ANALISE" class="w-4 h-4 text-amber-600 bg-white border-gray-300 focus:ring-amber-500 mr-2 opacity-0 absolute">
+                  <span class="text-xs font-bold">Em Análise</span>
+                </label>
+                <label [ngClass]="formResposta.get('novoStatus')?.value === 'RESOLVIDO' ? 'ring-2 ring-emerald-500 bg-emerald-100' : 'bg-emerald-50 hover:bg-emerald-100'"
+                       class="flex items-center justify-center px-3 py-2 border border-emerald-200 text-emerald-800 rounded-lg cursor-pointer transition-all">
+                  <input type="radio" formControlName="novoStatus" value="RESOLVIDO" class="w-4 h-4 text-emerald-600 bg-white border-gray-300 focus:ring-emerald-500 mr-2 opacity-0 absolute">
+                  <span class="text-xs font-bold">Resolvido</span>
+                </label>
+              </div>
+            </div>
+
+            <button (click)="enviarResposta(chamado.id)" [disabled]="isSaving || formResposta.invalid" type="button" 
+                    class="w-full bg-blue-600 text-white font-bold text-sm py-3 rounded-xl hover:bg-blue-700 active:scale-95 shadow-md transition-all flex items-center justify-center gap-2">
+              <svg *ngIf="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              {{ isSaving ? 'ATUALIZANDO...' : 'ATUALIZAR STATUS' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</ion-content>

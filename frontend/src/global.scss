@@ -9,21 +9,23 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+@import "tailwindcss";
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
-@import "@ionic/angular/css/normalize.css";
+// @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
-@import "@ionic/angular/css/display.css";
+// @import "@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
-@import "@ionic/angular/css/padding.css";
-@import "@ionic/angular/css/float-elements.css";
-@import "@ionic/angular/css/text-alignment.css";
-@import "@ionic/angular/css/text-transformation.css";
-@import "@ionic/angular/css/flex-utils.css";
+// @import "@ionic/angular/css/padding.css";
+// @import "@ionic/angular/css/float-elements.css";
+// @import "@ionic/angular/css/text-alignment.css";
+// @import "@ionic/angular/css/text-transformation.css";
+// @import "@ionic/angular/css/flex-utils.css";
 
 /**
  * Ionic Dark Mode
@@ -34,4 +36,41 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+// @import '@ionic/angular/css/palettes/dark.system.css';
+
+.mobile-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #f9fafb; 
+  
+  display: flex;
+  flex-direction: column;
+
+  @media (prefers-color-scheme: light) {
+    background-color: #f9fafb; 
+  }
+
+  @media (min-width: 768px) {
+    max-width: 1000px; 
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 24px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    min-height: auto; 
+
+    @media (prefers-color-scheme: light) {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+      border: 1px solid #1e1e1e;
+    }
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,79 @@
+<ion-content [fullscreen]="true">
+
+  <div class="login-page">
+
+    <div class="login-box">
+
+      <div class="logo-box">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+
+      <h1>Sistema do Síndico</h1>
+
+      <p class="subtitle">
+        Governança e Transparência
+      </p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="fazerLogin()">
+
+        <div class="input-group">
+          <label>CPF</label>
+          <ion-input formControlName="cpf" fill="outline" placeholder="000.000.000-00" class="input-acessivel" maxlength="14" (ionInput)="formatarCpf($event)">
+              <ion-icon slot="start" name="person-outline"></ion-icon>
+          </ion-input>
+        </div>
+
+        <div class="input-group">
+          <label>Senha</label>
+          <ion-input formControlName="senha" [type]="mostrarSenha ? 'text' : 'password'" fill="outline" placeholder="••••••••" class="input-acessivel">
+            <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+            <ion-icon slot="end" class="toggle-password" [name]="mostrarSenha ? 'eye-off-outline' : 'eye-outline'" (click)="toggleSenha()"></ion-icon>
+          </ion-input>
+        </div>
+
+        <!-- <div class="forgot-password">
+
+          <a href="#">
+            Esqueceu sua senha?
+          </a>
+
+        </div> -->
+
+        <div
+          *ngIf="errorMessage"
+          class="error-box">
+
+          <ion-icon
+            name="alert-circle-outline">
+          </ion-icon>
+
+          <span>{{errorMessage}}</span>
+
+        </div>
+
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="isLoading">
+
+          {{isLoading ? 'AGUARDE...' : 'ENTRAR'}}
+
+        </ion-button>
+
+      </form>
+
+      <!-- <div class="register">
+
+        <span>É seu primeiro acesso?</span>
+
+        <a href="#">
+          Criar cadastro de Morador
+        </a>
+
+      </div> -->
+
+    </div>
+
+  </div>
+
+</ion-content>

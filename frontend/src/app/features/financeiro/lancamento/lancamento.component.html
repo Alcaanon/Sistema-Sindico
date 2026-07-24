@@ -1,0 +1,107 @@
+<ion-content [fullscreen]="true" style="--background: transparent;">
+  <div class="mobile-wrapper w-full bg-gray-50 min-h-screen pb-10">
+    
+    <header [ngClass]="tipoLancamento === 'RECEITA' ? 'bg-emerald-600' : 'bg-red-600'" class="px-5 py-4 flex items-center gap-4 text-white shadow-md sticky top-0 z-20 transition-colors">
+      <button (click)="voltar()" class="hover:bg-white/20 p-2 rounded-full transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      </button>
+      <h1 class="text-lg font-bold">
+        {{ isEdicao ? 'Editar' : 'Nova' }} {{ tipoLancamento === 'RECEITA' ? 'Receita' : 'Despesa' }}
+      </h1>
+    </header>
+
+    <main class="p-5">
+      <form [formGroup]="lancamentoForm" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-5">
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+          <input formControlName="descricao" type="text" placeholder="Ex: Conta de Luz / Cota Apto 101" 
+                 class="w-full border rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 outline-none transition-all"
+                 [ngClass]="{'border-red-300 focus:ring-red-500': lancamentoForm.get('descricao')?.invalid && lancamentoForm.get('descricao')?.touched, 'border-gray-300 focus:ring-blue-500': !(lancamentoForm.get('descricao')?.invalid && lancamentoForm.get('descricao')?.touched)}" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Valor Total (R$)</label>
+            <input formControlName="valor" type="number" step="0.01" placeholder="0.00" 
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1 flex items-center justify-between">
+              Parcelas
+              <span *ngIf="isEdicao" class="text-[10px] text-gray-400 font-normal">(Bloqueado)</span>
+            </label>
+            <input formControlName="numeroParcelas" type="number" min="1" 
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-100" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Competência</label>
+            <input formControlName="mesReferencia" type="text" placeholder="MM/YYYY" 
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 text-center focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
+            <select formControlName="categoria" class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+              <option value="" disabled selected>Selecione...</option>
+              <ng-container *ngIf="tipoLancamento === 'RECEITA'">
+                <option value="COTA_CONDOMINIAL">Cota Condominial</option>
+                <option value="FUNDO_RESERVA">Fundo de Reserva</option>
+                <option value="OUTROS">Outros</option>
+              </ng-container>
+              <ng-container *ngIf="tipoLancamento === 'DESPESA'">
+                <option value="AGUA">Água</option>
+                <option value="LUZ">Luz</option>
+                <option value="TERCEIRO">Terceirizados/Serviços</option>
+                <option value="EMERGENCIAL">Emergencial</option>
+                <option value="EXTRA">Despesa Extra</option>
+              </ng-container>
+            </select>
+          </div>
+        </div>
+
+        <ng-container *ngIf="tipoLancamento === 'RECEITA'">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Unidade Pagadora</label>
+
+            <select
+              formControlName="unidadeId"
+              class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+            >
+              <option [ngValue]="null" disabled>Selecione um apartamento</option>
+              <option [value]="1">Apartamento 101</option>
+              <option [value]="2">Apartamento 102</option>
+              <option [value]="3">Apartamento 201</option>
+              <option [value]="4">Apartamento 202</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Data de Recebimento</label>
+            <input formControlName="dataRecebimento" type="date" 
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="tipoLancamento === 'DESPESA'">
+          <label class="flex items-center gap-3 cursor-pointer mt-4 p-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+            <input formControlName="pagoPeloSindico" type="checkbox" class="w-5 h-5 text-red-600 rounded focus:ring-red-500" />
+            <span class="text-sm font-semibold text-gray-700">Pago pelo Síndico (Reembolso)</span>
+          </label>
+        </ng-container>
+
+        <button type="submit" [disabled]="lancamentoForm.invalid || isLoading" 
+                [ngClass]="tipoLancamento === 'RECEITA' ? 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500' : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'"
+                class="w-full text-white font-bold text-lg py-4 rounded-xl shadow-md transition-all mt-6 disabled:opacity-50 focus:ring-4 focus:outline-none flex justify-center items-center">
+          <span *ngIf="isLoading" class="flex items-center gap-2">
+            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            Processando...
+          </span>
+          <span *ngIf="!isLoading">{{ isEdicao ? 'ATUALIZAR' : 'SALVAR' }} {{ tipoLancamento }}</span>
+        </button>
+
+      </form>
+    </main>
+  </div>
+</ion-content>

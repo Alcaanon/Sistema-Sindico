@@ -15,6 +15,13 @@ datasource db {
 // ENUMS
 // ----------------------------------------------------------------------------
 
+enum NumeroUnidade {
+  APTO_101
+  APTO_102
+  APTO_201
+  APTO_202
+}
+
 enum StatusOcupacao {
   PROPRIETARIO
   INQUILINO
@@ -31,6 +38,7 @@ enum TipoDespesa {
   LUZ
   TERCEIRO
   EXTRA
+  EMERGENCIAL
 }
 
 enum TipoReceita {
@@ -55,13 +63,19 @@ enum StatusOcorrencia {
   RESOLVIDO
 }
 
+enum TipoAvaliacao {
+  BUG
+  SUGESTAO
+  ELOGIO
+}
+
 // ----------------------------------------------------------------------------
 // MODELS
 // ----------------------------------------------------------------------------
 
 model Unidade {
   id             Int            @id @default(autoincrement())
-  numero         String         @db.VarChar(10)
+  numero         NumeroUnidade  @unique
   statusOcupacao StatusOcupacao @map("status_ocupacao")
   vagaGaragem    String?        @map("vaga_garagem") @db.VarChar(50)
 
@@ -75,7 +89,7 @@ model Unidade {
 
 model Usuario {
   id            Int           @id @default(autoincrement())
-  unidadeId     Int           @map("unidade_id")
+  unidadeNumero NumeroUnidade @map("unidade_numero")
   nomeCompleto  String        @map("nome_completo") @db.VarChar(255)
   cpf           String        @unique @db.VarChar(14)
   whatsapp      String?       @db.VarChar(20)
@@ -84,12 +98,14 @@ model Usuario {
   aceiteLgpd    Boolean       @default(false) @map("aceite_lgpd")
   dataAceite    DateTime?     @map("data_aceite_lgpd")
   senhaHash     String        @map("senha_hash") @db.VarChar(255)
+  refreshTokenHash String?       @map("refresh_token_hash") @db.VarChar(255)
 
   // Relacionamentos
-  unidade     Unidade        @relation(fields: [unidadeId], references: [id])
+  unidade     Unidade        @relation(fields: [unidadeNumero], references: [numero])
   despesas    Despesa[]
   ocorrencias Ocorrencia[]
   logs        LogAuditoria[]
+  availiacoes  AvaliacaoApp[]
 
   @@map("usuarios")
 }
@@ -97,15 +113,20 @@ model Usuario {
 model Despesa {
   id              Int         @id @default(autoincrement())
   cadastradoPorId Int         @map("cadastrado_por")
-  mesReferencia   String      @map("mes_referencia") @db.VarChar(7) // Ex: "07/2026"
+  mesReferencia   String      @map("mes_referencia") @db.VarChar(7) 
   descricao       String      @db.VarChar(255)
   valor           Decimal     @db.Decimal(10, 2)
   tipoDespesa     TipoDespesa @map("tipo_despesa")
   pagoPeloSindico Boolean     @default(false) @map("pago_pelo_sindico")
   urlComprovante  String?     @map("url_comprovante") @db.Text
+  numeroParcelas  Int         @default(1) @map("numero_parcelas")
+  parcelaAtual    Int         @default(1) @map("parcela_atual")   
+  despesaPaiId    Int?        @map("despesa_pai_id")
 
   // Relacionamentos
-  cadastradoPor Usuario @relation(fields: [cadastradoPorId], references: [id])
+  cadastradoPor Usuario   @relation(fields: [cadastradoPorId], references: [id])
+  despesaPai    Despesa?  @relation("ParcelasDespesa", fields: [despesaPaiId], references: [id])
+  despesasFilhas Despesa[] @relation("ParcelasDespesa")
 
   @@map("despesas")
 }
@@ -118,9 +139,14 @@ model Receita {
   valorRecebido   Decimal     @map("valor_recebido") @db.Decimal(10, 2)
   dataRecebimento DateTime    @map("data_recebimento") @db.Date
   tipoReceita     TipoReceita @map("tipo_receita")
+  numeroParcelas  Int         @default(1) @map("numero_parcelas")
+  parcelaAtual    Int         @default(1) @map("parcela_atual")
+  receitaPaiId    Int?        @map("receita_pai_id")
 
   // Relacionamentos
-  unidade Unidade @relation(fields: [unidadeId], references: [id])
+  unidade     Unidade   @relation(fields: [unidadeId], references: [id])
+  receitaPai    Receita?  @relation("ParcelasReceita", fields: [receitaPaiId], references: [id])
+  receitasFilhas Receita[] @relation("ParcelasReceita")
 
   @@map("receitas")
 }
@@ -164,6 +190,7 @@ model Ocorrencia {
   id               Int              @id @default(autoincrement())
   usuarioId        Int              @map("usuario_id")
   assunto          String           @db.Text
+  descricao        String           @map("descricao_detalhada") @db.Text
   status           StatusOcorrencia @default(ABERTO)
   dataHoraAbertura DateTime         @default(now()) @map("data_hora_abertura") @db.Timestamp(6)
 
@@ -201,4 +228,17 @@ model LogAuditoria {
   usuario Usuario @relation(fields: [usuarioId], references: [id])
 
   @@map("logs_auditoria")
+}
+
+model AvaliacaoApp {
+  id          Int           @id @default(autoincrement())
+  usuarioId   Int           @map("usuario_id")
+  nota        Int           @map("nota_estrelas")
+  tipo        TipoAvaliacao
+  comentario  String        @db.Text
+  dataHora    DateTime      @default(now()) @map("data_hora") @db.Timestamp(6)
+
+  usuario     Usuario       @relation(fields: [usuarioId], references: [id])
+
+  @@map("avaliacoes_app")
 }

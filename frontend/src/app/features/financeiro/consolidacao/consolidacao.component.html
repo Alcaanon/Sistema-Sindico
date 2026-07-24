@@ -1,0 +1,128 @@
+<ion-content class="bg-gray-50">
+  <div class="mobile-wrapper w-full max-w-md mx-auto relative pb-10 min-h-screen bg-gray-50">
+    
+    <header class="bg-white px-4 py-4 flex items-center shadow-sm sticky top-0 z-10 border-b border-gray-800">
+      <button (click)="voltar()" class="text-gray-500 hover:text-gray-900 focus:outline-none p-1 -ml-1 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <div class="ml-2">
+        <h1 class="text-lg font-bold text-gray-800 leading-tight">Consolidação do Caixa</h1>
+        <p class="text-xs text-gray-500 font-medium">Ref: {{ mesReferenciaVisual || '...' }}</p>
+      </div>
+    </header>
+
+    <main class="p-5 space-y-5">
+      
+      <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+        <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+        </svg>
+        <div>
+          <h3 class="text-sm font-bold text-blue-900">Atenção ao Fechamento</h3>
+          <p class="text-xs text-blue-700 mt-1">Ao congelar o mês, novas receitas ou despesas não poderão ser lançadas com data retroativa. Esta ação gerará a prestação de contas definitiva.</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-300">
+        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Selecione o Mês</label>
+        <div class="relative">
+          <select 
+            [ngModel]="mesReferenciaAPI" 
+            (ngModelChange)="onMudarFiltroMes($event)"
+            [disabled]="isLoading"
+            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 appearance-none font-medium disabled:opacity-50 transition-colors">
+            <option *ngFor="let mes of listaMesesDisponiveis" [value]="mes">
+              Competência: {{ mes }}
+            </option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-500 overflow-hidden relative">
+        <div *ngIf="isLoading" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 flex items-center justify-center">
+          <svg class="animate-spin h-8 w-8 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </div>
+
+        <div class="bg-gray-800 px-5 py-4 flex items-center justify-between text-white">
+          <h2 class="text-sm font-bold tracking-wider uppercase">Extrato de {{ mesReferenciaVisual }}</h2>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </div>
+        
+        <div class="p-5 space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-600">Saldo Anterior</span>
+            <span class="text-sm font-bold text-gray-900">{{ saldoAnterior | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-600">Total de Receitas (Cotas)</span>
+            <span class="text-sm font-bold text-emerald-600">(+) {{ totalReceitas | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-600">Total de Despesas Pagas</span>
+            <span class="text-sm font-bold text-red-600">(-) {{ totalDespesas | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <hr class="border-t-2 border-dashed border-gray-500 my-2">
+
+          <div class="flex justify-between items-end">
+            <div>
+              <p class="text-xs text-gray-500 font-bold uppercase">Saldo Atualizado do Caixa</p>
+            </div>
+            <h3 class="text-2xl font-extrabold text-blue-600 tracking-tight">{{ saldoAtualizado | currency:'BRL':'symbol':'1.2-2' }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div [ngClass]="reduziuCustos ? 'bg-emerald-50 border-emerald-100' : 'bg-orange-50 border-orange-100'" 
+           class="border rounded-xl p-4 flex items-center justify-between shadow-sm transition-colors relative overflow-hidden">
+        
+        <div *ngIf="isLoading" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-10"></div>
+        
+        <div class="flex items-center gap-3">
+          <div [ngClass]="reduziuCustos ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'" 
+               class="w-10 h-10 rounded-full flex items-center justify-center">
+            <svg *ngIf="reduziuCustos" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+            <svg *ngIf="!reduziuCustos" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </div>
+          
+          <div>
+            <p [ngClass]="reduziuCustos ? 'text-emerald-700' : 'text-orange-700'" class="text-xs font-medium">Comparativo de Custos</p>
+            <p [ngClass]="reduziuCustos ? 'text-emerald-900' : 'text-orange-900'" class="text-sm font-bold">
+              {{ percentualComparativo | number:'1.0-0' }}% {{ reduziuCustos ? 'menores' : 'maiores' }} que o mês anterior
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 pb-6">
+        <button (click)="congelarMes()"
+          [disabled]="isConsolidado || isLoading || totalDespesas <= 0 || isMesRetroativoInvalido(mesReferenciaAPI) || isMesFuturo(mesReferenciaAPI)"
+          [ngClass]=" (isConsolidado || totalDespesas <= 0 || isMesRetroativoInvalido(mesReferenciaAPI) || isMesFuturo(mesReferenciaAPI)) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800 active:scale-95' " 
+          type="button" class="w-full text-white font-bold text-base py-4 rounded-xl shadow-lg transition-all flex justify-center items-center gap-2">
+          
+          <svg *ngIf="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" > <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" ></path></svg>
+          <svg *ngIf="isLoading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" > <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" ></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" ></path> </svg>
+          
+          <span class="text-center text-sm sm:text-base px-2"> 
+            {{ 
+              isLoading ? 'CONGELANDO MÊS...' : 
+              isConsolidado ? 'MÊS JÁ CONSOLIDADO' : 
+              isMesFuturo(mesReferenciaAPI) ? 'MÊS FUTURO (BLOQUEADO)' : 
+              totalDespesas <= 0 ? 'MÊS SEM DESPESAS (BLOQUEADO)' : 
+              isMesRetroativoInvalido(mesReferenciaAPI) ? 'PERÍODO RETROATIVO BLOQUEADO': 
+              'CONGELAR MÊS E GERAR AUDITORIA'
+            }}
+          </span>
+        </button>
+      </div>
+
+    </main>
+  </div>
+</ion-content>

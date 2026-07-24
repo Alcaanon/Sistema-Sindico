@@ -1,0 +1,216 @@
+<ion-content class="bg-gray-50">
+  <div class="w-full max-w-md mx-auto bg-gray-50 min-h-screen relative pb-10">
+    
+    <header class="bg-white px-4 py-4 flex items-center shadow-sm sticky top-0 z-10 border-b border-gray-100">
+      <button (click)="voltar()" class="text-gray-500 hover:text-gray-900 focus:outline-none p-1 -ml-1 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </button>
+      <div class="ml-2">
+        <h1 class="text-lg font-bold text-gray-800 leading-tight">Prestação de Contas</h1>
+      </div>
+    </header>
+
+    <main class="p-5 space-y-6">
+      
+      <section>
+        <div class="grid grid-cols-2 p-1 bg-gray-200 rounded-xl mb-3">
+          <button (click)="alterarVisao('MENSAL')" [ngClass]="{'bg-white text-gray-900 shadow-sm': visaoAtual === 'MENSAL', 'text-gray-500 hover:text-gray-700': visaoAtual !== 'MENSAL'}" class="font-bold py-2 rounded-lg text-sm transition-all">
+            Visão Mensal
+          </button>
+          <button (click)="alterarVisao('ANUAL')" [ngClass]="{'bg-white text-gray-900 shadow-sm': visaoAtual === 'ANUAL', 'text-gray-500 hover:text-gray-700': visaoAtual !== 'ANUAL'}" class="font-medium py-2 rounded-lg text-sm transition-all">
+            Visão Anual
+          </button>
+        </div>
+
+        <div class="relative" *ngIf="visaoAtual === 'MENSAL'">
+          <select [(ngModel)]="mesReferenciaAPI" (change)="onMesChange()" [disabled]="isLoading" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none text-gray-800 font-bold appearance-none shadow-sm cursor-pointer disabled:opacity-50">
+            <option *ngFor="let mes of listaMesesDisponiveis" [value]="mes">Competência: {{ mes }}</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+
+        <div class="relative" *ngIf="visaoAtual === 'ANUAL'">
+          <select [(ngModel)]="anoSelecionadoAPI" (change)="onAnoChange()" [disabled]="isLoading" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none text-gray-800 font-bold appearance-none shadow-sm cursor-pointer disabled:opacity-50">
+            <option *ngFor="let ano of listaAnosDisponiveis" [value]="ano">Ano Base: {{ ano }}</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+      </section>
+
+      <div *ngIf="isLoading" class="text-center py-10 relative z-20">
+        <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+      </div>
+
+      <ng-container *ngIf="!isLoading">
+        
+        <ng-container *ngIf="visaoAtual === 'MENSAL'">
+          
+          <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
+            <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
+              <div>
+                <h2 class="text-sm font-bold uppercase tracking-wide">Balanço {{ isConsolidado ? 'Definitivo' : 'Parcial' }}</h2>
+                <p class="text-xs text-gray-400 mt-1">Ref: {{ mesReferenciaAPI }}</p>
+              </div>
+              <span [ngClass]="isConsolidado ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-orange-500/20 text-orange-300 border-orange-500/50'" class="text-[10px] font-bold px-2 py-1 rounded border uppercase tracking-wider">
+                {{ isConsolidado ? 'Consolidado' : 'Em Aberto' }}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+              <div class="p-4 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide mb-1">Total Entradas</p>
+                <p class="text-lg font-extrabold text-emerald-600">+ {{ totalReceitasCalc | currency:'BRL':'symbol':'1.2-2' }}</p>
+              </div>
+              <div class="p-4 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide mb-1">Total Saídas</p>
+                <p class="text-lg font-extrabold text-red-600">- {{ totalDespesasCalc | currency:'BRL':'symbol':'1.2-2' }}</p>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-4 bg-gray-50/50">
+              <div class="space-y-3">
+                <div *ngIf="fechamentoAtual && fechamentoAtual.fundoReservaAdicionado > 0" class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Fundo de Reserva (Poupado)</span>
+                  <span class="text-sm font-bold text-purple-600">{{ fechamentoAtual.fundoReservaAdicionado | currency:'BRL':'symbol':'1.2-2' }}</span>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                <span class="text-sm font-bold text-gray-900">Saldo {{ fechamentoAtual ? 'Final em Caixa' : 'Projetado' }}</span>
+                <span [ngClass]="(fechamentoAtual ? fechamentoAtual.saldoAtualizadoCaixa : saldoProjetado) >= 0 ? 'text-blue-600' : 'text-red-600'" class="text-base font-extrabold">
+                  {{ (fechamentoAtual ? fechamentoAtual.saldoAtualizadoCaixa : saldoProjetado) | currency:'BRL':'symbol':'1.2-2' }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section *ngIf="isConsolidado" class="mt-6">
+            <button (click)="baixarPDF()" class="w-full bg-blue-600 text-white font-bold text-sm py-4 rounded-xl hover:bg-blue-700 active:bg-blue-800 shadow-md transition-all flex items-center justify-center gap-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <div class="text-left">
+                <span class="block text-sm font-bold">Baixar Relatório Oficial (PDF)</span>
+                <span class="block text-[10px] font-normal text-blue-200">Com assinaturas e documentação legal</span>
+              </div>
+            </button>
+          </section>
+
+          <section class="space-y-5 pt-6">
+            <div>
+              <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path></svg>
+                Entradas Registradas
+              </h3>
+              <div *ngIf="listaReceitas.length === 0" class="bg-white p-4 rounded-xl border border-dashed border-gray-300 text-center text-sm text-gray-500">
+                Nenhuma entrada lançada.
+              </div>
+              <div class="space-y-2">
+                <div *ngFor="let r of listaReceitas" class="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                  <div>
+                    <p class="text-sm font-bold text-gray-800">{{ r.descricao }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ r.tipoReceita || 'Cota Condominial' }}</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="block text-sm font-bold text-emerald-600">+ {{ r.valorRecebido | currency:'BRL':'symbol':'1.2-2' }}</span>
+                    <span class="block text-[10px] text-gray-400 font-medium">{{ r.dataRecebimento | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path></svg>
+                Saídas Registradas
+              </h3>
+              <div *ngIf="listaDespesas.length === 0" class="bg-white p-4 rounded-xl border border-dashed border-gray-300 text-center text-sm text-gray-500">
+                Nenhuma despesa lançada.
+              </div>
+              <div class="space-y-2">
+                <div *ngFor="let d of listaDespesas" class="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                  <div>
+                    <p class="text-sm font-bold text-gray-800">{{ d.descricao }}</p>
+                    <p class="text-[10px] uppercase font-bold text-gray-400 mt-1">{{ d.tipoDespesa }}</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="block text-sm font-bold text-red-600">- {{ d.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+                    <span *ngIf="d.numeroParcelas > 1" class="block text-[10px] text-gray-400 font-medium mt-0.5">Parc. {{ d.parcelaAtual }}/{{ d.numeroParcelas }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </ng-container>
+
+        <ng-container *ngIf="visaoAtual === 'ANUAL'">
+          
+          <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
+            <div class="bg-gray-900 p-4 text-white">
+              <h2 class="text-sm font-bold uppercase tracking-wide">Balanço Anual</h2>
+              <p class="text-xs text-gray-400 mt-1">Ano Base: {{ anoSelecionadoAPI }}</p>
+            </div>
+
+            <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+              <div class="p-4 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide mb-1">Total Entradas (Ano)</p>
+                <p class="text-lg font-extrabold text-emerald-600">+ {{ totalReceitasAno | currency:'BRL':'symbol':'1.2-2' }}</p>
+              </div>
+              <div class="p-4 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide mb-1">Total Saídas (Ano)</p>
+                <p class="text-lg font-extrabold text-red-600">- {{ totalDespesasAno | currency:'BRL':'symbol':'1.2-2' }}</p>
+              </div>
+            </div>
+
+            <div class="p-4 bg-gray-50/50 border-t border-gray-200 flex justify-between items-center">
+              <span class="text-sm font-bold text-gray-900">Desempenho Anual</span>
+              <span [ngClass]="saldoAno >= 0 ? 'text-blue-600' : 'text-red-600'" class="text-lg font-extrabold">
+                {{ saldoAno | currency:'BRL':'symbol':'1.2-2' }}
+              </span>
+            </div>
+          </section>
+
+          <section class="space-y-4 pt-6 animate-fade-in">
+            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              Resumo por Mês
+            </h3>
+
+            <div class="space-y-3">
+              <div *ngFor="let m of mesesDoAno" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                  <span class="font-bold text-gray-800">{{ m.nome }} / {{ anoSelecionadoAPI }}</span>
+                  <span [ngClass]="m.consolidado ? 'text-emerald-700 bg-emerald-100' : 'text-orange-700 bg-orange-100'" class="text-[10px] uppercase font-bold px-2 py-1 rounded">
+                    {{ m.consolidado ? 'Consolidado' : 'Aberto' }}
+                  </span>
+                </div>
+                
+                <div class="p-4 grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p class="text-gray-500 font-medium text-xs mb-1">Entradas</p>
+                    <p class="font-bold text-emerald-600">+ {{ m.receitas | currency:'BRL':'symbol':'1.2-2' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500 font-medium text-xs mb-1">Saídas</p>
+                    <p class="font-bold text-red-600">- {{ m.despesas | currency:'BRL':'symbol':'1.2-2' }}</p>
+                  </div>
+                  
+                  <div class="col-span-2 pt-3 mt-1 border-t border-gray-100 flex justify-between items-center">
+                    <span class="font-bold text-gray-700 text-xs uppercase">Resultado do Mês</span>
+                    <span [ngClass]="m.saldo >= 0 ? 'text-blue-600' : 'text-red-600'" class="font-extrabold">
+                      {{ m.saldo | currency:'BRL':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </ng-container>
+
+      </ng-container>
+    </main>
+  </div>
+</ion-content>
