@@ -76,7 +76,7 @@ export interface ResumoFinanceiro {
   totalReceitas: number;
   totalDespesas: number;
   mesReferencia: string;
-  mesReferenciaOriginal?: string; // <-- NOVA PROPRIEDADE
+  mesReferenciaOriginal?: string;
 }
 
 // ==========================================================
@@ -100,7 +100,7 @@ export class ApiService {
         
         return { 
           ...dados, 
-          mesReferenciaOriginal: dados.mesReferencia, // <-- SALVA O "07/2026" PARA O BACKEND
+          mesReferenciaOriginal: dados.mesReferencia,
           mesReferencia: `${nomesMeses[indexMes]} / ${ano}` 
         };
       })
@@ -250,7 +250,7 @@ export class ApiService {
   }
 
   public registrarLog(acao: string): Observable<any> {
-    const userId = 1; // Ajuste para pegar do seu AuthService
+    const userId = 1;
     return this.http.post(`${this.apiUrl}/auditoria`, { usuarioId: userId, acao });
   }
 
